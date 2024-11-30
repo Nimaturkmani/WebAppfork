@@ -5,15 +5,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
+@SpringBootApplication // marks the main class of the application
 public class BeanExampleApplication {
-
 	public static void main(String[] args) {
-		SpringApplication.run(BeanExampleApplication.class, args);
+		SpringApplication.run(BeanExampleApplication.class, args); // initializing and lunching the app
 	}
 
 	@Bean
-	CommandLineRunner init() {
+	CommandLineRunner init() { // dass Container nach dem Start der Anwendung die Bean unmittelbar ausführt
 		CommandLineRunner action = new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {

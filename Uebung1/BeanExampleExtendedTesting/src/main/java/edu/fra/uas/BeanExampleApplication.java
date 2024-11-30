@@ -29,6 +29,7 @@ public class BeanExampleApplication {
 			public void run(String... args) throws Exception {
 				log.debug(beanController.putMessage("Hello World"));
 				log.debug(beanController.putMessage("--> OOOHOOO <--"));
+				beanController.outputMessage();
 			}
 		};
 		return action;

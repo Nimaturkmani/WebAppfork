@@ -1,6 +1,6 @@
 package edu.fra.uas.beanexample;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat; //Zum testen nötig
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class ControllerTest {
 
     @Test
     void testController() {
-        assertThat(beanController.putMessage("Das ist ein Test")).isEqualTo("Das ist ein Test");
+    assertThat(beanController.putMessage("Das ist ein Test 2")).isEqualTo("Das ist ein Test 2"); // bei putmessage methode das This message löschen
+    beanController.outputMessage();
     }
-
 }

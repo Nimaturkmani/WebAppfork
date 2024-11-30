@@ -12,8 +12,8 @@ public class BeanController {
     private MessageService messageService;
 
     public String putMessage(String message) {
-        messageService.setMessage(" put messgae: " + message);
-        return messageService.getMessage();
+        messageService.setMessage(" set messgae: " + message);
+        return messageService.getMessage()+" this is get Messgae";
     }
 
 }

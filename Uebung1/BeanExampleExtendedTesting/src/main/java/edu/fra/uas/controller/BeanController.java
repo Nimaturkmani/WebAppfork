@@ -12,8 +12,14 @@ public class BeanController {
     private MessageService messageService;
 
     public String putMessage(String message) {
-        messageService.setMessage(" put messgae: " + message);
+        messageService.setMessage(message);
+        messageService.setCounter(1); //counter automatisch auf 1 gesetzt
         return messageService.getMessage();
+    }
+    
+    public void outputMessage(){
+        messageService.increment(); // conter wird auf eins erhört!
+        System.out.println(messageService.getMessage()+ " " + messageService.getCounter().toString());
     }
 
 }

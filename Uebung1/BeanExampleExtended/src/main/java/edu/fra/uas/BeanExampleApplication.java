@@ -11,22 +11,22 @@ import edu.fra.uas.service.MessageService;
 @SpringBootApplication
 public class BeanExampleApplication {
 
-	@Autowired
-	private MessageService messageService;
+	@Autowired // -> wird ein Bean obeject zu verfügung gestellt und beinhaltet auch seine Instanziierung
+	private MessageService messageService; // objekt von messageService erstellt
 
 	public static void main(String[] args) {
 		SpringApplication.run(BeanExampleApplication.class, args);
 	}
 
 	@Bean
-	CommandLineRunner init() {
+	CommandLineRunner init() {// hier wird message service objekte ausgerufen und die werte haben wir bekommen
 		CommandLineRunner action = new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
-				messageService.setMessage("Hello World!");
-				System.out.println(messageService.getMessage());
-				messageService.setMessage("--> HHHOHHH <--");
-				System.out.println(messageService.getMessage());
+				messageService.setMessage("Hello World!"); // durch setter wird gesetzt
+				System.out.println(messageService.getMessage()); // durch getter geholt
+				messageService.setMessage("--> HHHOHHH <--"); // durch setter wieder gesetzt
+				System.out.println(messageService.getMessage()); // durch getter geholt und ausgegeben
 			}
 		};
 		return action;
