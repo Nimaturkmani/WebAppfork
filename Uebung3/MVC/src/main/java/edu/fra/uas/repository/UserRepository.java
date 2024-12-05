@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import edu.fra.uas.model.User;
 
-@Repository
+@Repository // so gut wie ein Datenbankklasse
 public class UserRepository extends HashMap<Long, User> {
     
 }

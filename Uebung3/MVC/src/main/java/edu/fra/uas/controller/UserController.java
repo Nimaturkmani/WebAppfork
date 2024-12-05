@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.fra.uas.model.User;
 import edu.fra.uas.service.UserService;
-
+//HTTP-Anfragen empfängt und daraufhin entsprechende HTML-Seiten zurückgibt
 @Controller
 public class UserController {
 
