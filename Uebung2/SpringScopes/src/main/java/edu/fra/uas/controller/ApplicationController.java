@@ -14,14 +14,18 @@ public class ApplicationController {
 
 	private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
 	
-	@Autowired
-	ApplicationContext applicationContext;
+	@Autowired //Spring injiziert automatisch die Bean ApplicationContext
+	ApplicationContext applicationContext; 
+	// ApplicationContext, eine zentrale Klasse in Spring, die den Zugriff auf alle registrierten Beans ermöglicht.
+	//Über den ApplicationContext kann man Beans zur Laufzeit abrufen, anstatt sie manuell zu instanziieren.
 	
 	public ApplicationController() {}
+	//Ein leerer Standardkonstruktor. Da keine zusätzlichen Abhängigkeiten oder Logik im Konstruktor benötigt werden, ist er leer.
+
 	
-	@RequestMapping(value = "/path1")
+	@RequestMapping(value = "/path1") //Definiert die URL, unter der diese Methode aufgerufen wird(/path1).
 	public String showPage1() {
-		Session session1 = (Session) applicationContext.getBean(Session.class);
+		Session session1 = (Session) applicationContext.getBean(Session.class); //wird eine Bean der Klasse Session abgerufen
 		Session session2 = (Session) applicationContext.getBean(Session.class);
 		log.info(session1.getSessionName());
 		log.info(session2.getSessionName());
@@ -34,7 +38,7 @@ public class ApplicationController {
 		Session session2 = (Session) applicationContext.getBean(Session.class);
 		log.info(session1.getSessionName());
 		log.info(session2.getSessionName());
-		return "page";
+		return "page"; //Gibt den Namen der View (z. B. page.html oder page.jsp) zurück, die dem Benutzer angezeigt werden soll
 	}
 	
 }
