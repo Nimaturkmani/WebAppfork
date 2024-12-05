@@ -1,9 +1,12 @@
 package edu.fra.uas.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 
+//Serializable Ermöglicht, dass Objekte der Klasse in einen bytestream umgewandelt und z. B. in Dateien gespeichert oder 
+//über das Netzwerk übertragen werden können.
 public class User implements Serializable {
     
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(User.class);
@@ -15,11 +18,11 @@ public class User implements Serializable {
     private String email;
     private String password;
     
-    public User() {
+    public User() { // konstrucktor ohne Werte & parameter
         log.debug("User created without values");
     }
 
-    public User(long id, String role, String firstName, String lastName, String email, String password) {
+    public User(long id, String role, String firstName, String lastName, String email, String password) { // mit Parameter
         log.debug("User created with values + id: " + id + " role: " + role + " firstName: " + firstName + " lastName: " + lastName + " email: " + email + " password: " + password);
         this.id = id;
         this.role = role;
@@ -78,7 +81,7 @@ public class User implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(Object object) { //Vergleichskriterien: firstName, lastName und email (falls nicht null).
         if (object == null) 
             return false;
         if (object == this) 
@@ -106,13 +109,17 @@ public class User implements Serializable {
         return true;
     }
 
+//Wenn mann in einer HashMap nach einem Schlüssel suchst, wird zuerst der Hash-Wert des Schlüssels berechnet und verwendet,
+//um den richtigen Bucket zu finden. Anschließend wird innerhalb dieses Buckets nach dem Element gesucht.
+
     @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 31 * hash + (this.firstName != null ? this.firstName.hashCode() : 0);
-        hash = 31 * hash + (this.lastName != null ? this.lastName.hashCode() : 0);
-        hash = 31 * hash + (this.email != null ? this.email.hashCode() : 0);
-        return hash;
+    public int hashCode() { //Datenstrukturen wie HashMap speichern und suchen Objekte basierend auf ihren Hash-Werten.
+        int hash = 7;  // 7 * 31 -> versucht Kollisionen in Hash-basierten Datenstrukturen zu verringern
+        hash = 31 * hash + (this.firstName != null ? this.firstName.hashCode() : 0); // 31 *7 +("Nima".hashcode() = 1) = 217 + 1 =218
+       //wenn nicht Null dann führ .hashcode(). wenn firstname null ist wird 0 als Ersatzwert verwendet(Nullzeiger ausanheme verhindern) = hash = 2017
+        hash = 31 * hash + (this.lastName != null ? this.lastName.hashCode() : 0); // 31 *7 +("Turk".hashcode() = 1) = 217 + -217 = 0
+        hash = 31 * hash + (this.email != null ? this.email.hashCode() : 0);// 31 *7 +("Nima@tmx.de".hashcode() = 1) = 217 + -220  = -3
+        return hash; // hashwert = 215
     }
 
     @Override
