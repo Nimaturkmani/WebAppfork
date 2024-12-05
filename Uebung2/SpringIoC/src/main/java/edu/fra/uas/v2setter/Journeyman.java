@@ -5,7 +5,7 @@ public class Journeyman {
 
     public Journeyman setWork(Work work) {
         this.work = work;
-        return this;
+        return this; //Returning this allows the caller to chain another method on the same object.
     }
 
     public void performWork() {

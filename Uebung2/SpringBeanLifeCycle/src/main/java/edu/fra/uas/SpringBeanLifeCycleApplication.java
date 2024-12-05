@@ -24,7 +24,7 @@ public class SpringBeanLifeCycleApplication {
 
 			@Override
 			public void run(String... args) throws Exception {
-				smallService.doSomething();
+				smallService.doSomething(); // ruft die Methode doSomething
 			}
 		};
 		return action;
