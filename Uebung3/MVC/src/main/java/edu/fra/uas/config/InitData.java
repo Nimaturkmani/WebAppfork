@@ -9,14 +9,14 @@ import edu.fra.uas.service.UserService;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class InitData {
+public class InitData { // Klasse dient dazu, initiale Daten in die Anwendung einzufügen, wenn die Anwendung startet
 
     private final Logger log = org.slf4j.LoggerFactory.getLogger(InitData.class);
     
     @Autowired
     UserService userService;
 
-    @PostConstruct
+    @PostConstruct //Diese Methode wird nach der Konstruktion des Beans und dem Injizieren der Abhängigkeiten aufgerufen
     public void init() {
         log.debug("### Initialize Data ###");
 

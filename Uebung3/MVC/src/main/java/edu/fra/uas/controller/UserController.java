@@ -19,47 +19,54 @@ import edu.fra.uas.service.UserService;
 @Controller
 public class UserController {
 
-    private final Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class); //Initialisiert einen Logger für Debugging-Ausgaben
 
     @Autowired
     private UserService userService;
+    //Spring injiziert automatisch eine Instanz des UserService, der für Benutzeroperationen verantwortlich ist
+    //(z. B. Abrufen, Erstellen, Löschen von Benutzern).
 
     // http://127.0.0.1/
-    @RequestMapping
-	public String get() {
+    @RequestMapping //ohne spezifischen Pfad: Diese Methode wird für die Root-URL (http://127.0.0.1/) aufgerufen
+	
+    public String get() { //Die Methode gibt den Namen der HTML-View-Datei zurück, die geladen werden soll
         log.debug("get() is called");
 		return "index.html";
 	}
 
     // http://127.0.0.1/list
-    @RequestMapping(value = {"/list"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/list"}, method = RequestMethod.GET) //Verknüpft diese Methode mit der URL http://127.0.0.1/list und der HTTP-Methode GET
+    
     public String list(Model model) {
         log.debug("list() is called");
-        Iterable<User> userIter = userService.getAllUsers();
-        List<User> users = new ArrayList<>();
-        for (User user : userIter) {
-            users.add(user);
+        Iterable<User> userIter = userService.getAllUsers(); //Ruft alle Benutzer aus dem UserService ab
+        List<User> users = new ArrayList<>(); //Initialisiert eine neue Liste, um Benutzer zu speichern.
+        for (User user : userIter) { // Iteriert durch die Benutzer und fügt sie der Liste hinzu
+            users.add(user); 
         }
-        model.addAttribute("users", users);
-        return "list.html";
+        model.addAttribute("users", users); //Übergibt die Benutzerliste an die View, sodass sie in list.html angezeigt werden kann.
+        return "list.html"; //Gibt die View-Datei zurück, die die Benutzerliste rendern soll.
     }
 
     // http://127.0.0.1/find?id=1
     @RequestMapping(value = {"/find"}, method = RequestMethod.GET)
-    public String find(@RequestParam("id") Long userId, Model model) {
-        log.debug("find() is called");
-        User user = userService.getUserById(userId);
-        model.addAttribute("user", user);
-        return "find.html";
+    
+    public String find(@RequestParam("id") Long userId, Model model) { //Erwartet einen Query-Parameter id in der URL, speichert dessen Wert in der Variablen userId
+        log.debug("find() is called"); 
+        User user = userService.getUserById(userId);  //Holt den Benutzer mit der entsprechenden ID vom Service
+        model.addAttribute("user", user); //Fügt den gefundenen Benutzer dem Model hinzu, sodass er in find.html angezeigt wird
+        return "find.html"; //Gibt die HTML-View zurück
     }
 
     // http://127.0.0.1/add?firstName=Celine&lastName=Clever&email=celine.clever%40example.com&password=123456
     @RequestMapping(value = {"/add"}, method = RequestMethod.GET)
+    
     public String add(@RequestParam("firstName") String firstName, 
                       @RequestParam("lastName") String lastName, 
                       @RequestParam("email") String email, 
                       @RequestParam("password") String password, 
-                      Model model) throws MissingServletRequestParameterException {
+                      Model model) throws MissingServletRequestParameterException {   //Das Model ist eine Schnittstelle (org.springframework.ui.Model), 
+                            	                                                     //die als Container für Daten dient, die in der View verwendet werden sollen.
         log.debug("add() is called");
         User user = new User();
         user.setRole("USER");
@@ -74,14 +81,16 @@ public class UserController {
 
     // http://127.0.0.1/update
     @RequestMapping(value = {"/update"}, method = RequestMethod.GET)
-    public String update() {
+    
+    public String update() { //Zeigt die Update Seite an, auf der der Benutzer Daten eingeben kann, um ein Benutzerobjekt zu aktualisieren
         log.debug("update() is called");
         return "update.html";
     }
 
     // http://127.0.0.1/updated?id=2&firstName=Alice&lastName=Abraham&email=alice%40example.com&password=123A456
     @RequestMapping(value = {"/updated"}, method = { RequestMethod.GET, RequestMethod.POST })
-    public String update(@RequestParam("id") Long userId, 
+   
+    public String update(@RequestParam("id") Long userId, //Verarbeitet die aktualisierten Daten, speichert sie in der Datenbank und gibt eine Bestätigungsseite zurück
                          @RequestParam("firstName") String firstName, 
                          @RequestParam("lastName") String lastName, 
                          @RequestParam("email") String email, 
@@ -100,7 +109,8 @@ public class UserController {
 
     // http://127.0.0.1/delete/3
     @RequestMapping(value = {"/delete/{id}"}, method = RequestMethod.GET)
-    public String delete(@PathVariable("id") Long id, Model model) {
+    
+    public String delete(@PathVariable("id") Long id, Model model) { //@PathVariable("id") Long id: Extrahiert die ID aus der URL (z. B. /delete/3)
         log.debug("delete() is called");
         User user = userService.getUserById(id);
         userService.deleteUser(id);

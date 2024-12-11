@@ -1,22 +1,31 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!-- Definiert den Namespace für Thymeleaf -->
+<html xmlns:th="http://www.thymeleaf.org">  
     <head>
         <title>User added</title>
     </head>
     <body>
         <h1>User added</h1>
+
+        <!-- th:text="${user.id} Dynamische Platzhalter, die mit Thymeleaf gefüllt werden. -->
         <p>User ID: <b th:text="${user.id}">Id</b></p>
         <p>Firstname: <b th:text="${user.firstName}">First Name</b></p>
         <p>Lastname: <b th:text="${user.lastName}">Last Name</b></p>
         <p>Email: <b th:text="${user.email}">Email</b></p>
         <br/>
+
         <a href="/list">Back to user list</a>
+
+
         <footer>
-            <small id="today"></small>
+            <!-- //Element mit einer eindeutigen ID, damit es über JavaScript manipuliert werden kann. -->
+            <small id="today"></small> 
         </footer>
+
         <script>
             var date = new Date();
             var year = date.getFullYear();
+            // Fügt den Text in das <small>-Element mit der ID today ein.
             document.getElementById("today").innerHTML = "&copy; FRA-UAS MVC Example, "+year;
         </script> 
     </body>

@@ -32,7 +32,7 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public long getId() {
+    public long getId() { // setter und getters
         return id;
     }
 
