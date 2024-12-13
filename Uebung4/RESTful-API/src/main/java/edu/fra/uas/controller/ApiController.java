@@ -1,11 +1,12 @@
 package edu.fra.uas.controller;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn; // statische Methoden um HATEOAS-Links dynamisch zu generieren.
 
-import java.net.URI;
-import java.util.List;
+import java.net.URI; // URI für eindeutige Ressourcenschlüssel
+import java.util.List; //List für die Verarbeitung von Benutzerlisten
 
-import org.slf4j.Logger;
+import org.slf4j.Logger; //Für Logging von Debug-Informationen
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -31,26 +32,32 @@ import edu.fra.uas.model.UserDTO;
 import edu.fra.uas.service.UserService;
 import edu.fra.uas.util.Partition;
 
-@RestController
-@RequestMapping("/api")
+@RestController //Markiert die Klasse als REST-Controller, die HTTP-Anfragen entgegennimmt
+                //und JSON- oder XML-Responses zurückgibt.
+
+@RequestMapping("/api") //Präfix für alle URLs dieser API, z. B. /api/users.
 public class ApiController {
     
     private final Logger log = org.slf4j.LoggerFactory.getLogger(ApiController.class);
 
-    @Autowired
-    private UserService userService;
+    @Autowired  //Der UserService wird mit @Autowired injiziert.
+    private UserService userService; //Er übernimmt die eigentliche Geschäftslogik und die Interaktion mit der Datenbank
 
-    private static final int MAX_USERS = 2;
+    private static final int MAX_USERS = 2; //Gibt an, wie viele Benutzer pro Seite zurückgegeben werden
 
-    @GetMapping(value = "/users", 
-                produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users",  //Bindet den Endpunkt /users an diese Methode
+                produces = MediaType.APPLICATION_JSON_VALUE) //produces: Die Antwort wird als JSON zurückgegeben
     @ResponseBody
-    public ResponseEntity<CollectionModel<UserDTO>> list(@RequestParam(required = false) Integer page) {
+   // Methode, die Benutzer über eine REST-API auflistet
+    public ResponseEntity<CollectionModel<UserDTO>> list(@RequestParam(required = false) Integer page) { 
         log.debug("list() is called");
-        List<UserDTO> users = userService.getAllUsersDTO();       
+        
+        List<UserDTO> users = userService.getAllUsersDTO();
         if (users.isEmpty()) {
             return ResponseEntity.noContent().build();
-        } else if (users.size() > MAX_USERS && page == null) {
+        } 
+        
+        else if (users.size() > MAX_USERS && page == null) {
             int lastPage = (users.size() / MAX_USERS) + 1;
             Link first = linkTo(methodOn(ApiController.class).list(1)).withRel(IanaLinkRelations.FIRST);
             Link next = linkTo(methodOn(ApiController.class).list(2)).withRel(IanaLinkRelations.NEXT);
@@ -61,7 +68,9 @@ public class ApiController {
                 user.add(selfLink);
             }
             return new ResponseEntity<>(result, HttpStatus.PARTIAL_CONTENT);
-        } else if (page != null) {
+        } 
+        
+        else if (page != null) {
             Partition<UserDTO> partition = Partition.ofSize(users, MAX_USERS);
             CollectionModel<UserDTO> result = null;
             Link link = linkTo(methodOn(ApiController.class).list(page)).withSelfRel();
@@ -75,7 +84,9 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
-        } else {
+        } 
+        
+        else {
             Link link = linkTo(methodOn(ApiController.class).list(null)).withSelfRel();
             CollectionModel<UserDTO> result = CollectionModel.of(users).add(link);
             for (UserDTO user : result) {
@@ -89,6 +100,7 @@ public class ApiController {
     @GetMapping(value = "/users/{id}", 
                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+
     public ResponseEntity<?> find(@PathVariable("id") Long userId) {
         log.debug("find() is called");
         User user = userService.getUserById(userId);
@@ -102,6 +114,7 @@ public class ApiController {
                  consumes = MediaType.APPLICATION_JSON_VALUE, 
                  produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+
     public ResponseEntity<?> add(@RequestBody User user) {
         log.debug("add() is called");
         String detail = null;
@@ -128,12 +141,14 @@ public class ApiController {
         } else if (user.getPassword().isEmpty()) {
             detail = "Password must not be empty";
         }
+
         if (detail != null) {
             ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail); 
             pd.setInstance(URI.create("/users"));
             pd.setTitle("JSON Object Error");
             return ResponseEntity.unprocessableEntity().body(pd);
         }
+
         user = userService.createUser(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/restful/users/" + user.getId()));
@@ -144,13 +159,16 @@ public class ApiController {
                 , consumes = MediaType.APPLICATION_JSON_VALUE
                 , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+
     public ResponseEntity<?> update(@RequestBody User newUser, @PathVariable("id") Long userId) {
         log.debug("update() is called");
         User user = userService.getUserById(userId);
         if (user == null) {
             return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
         }
+
         String detail = null;
+
         if (newUser == null) {
             detail = "User must not be null";            
         } else if (newUser.getRole() == null) {
@@ -174,12 +192,14 @@ public class ApiController {
         } else if (newUser.getPassword().isEmpty()) {
             detail = "Password must not be empty";
         }
+
         if (detail != null) {
             ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail); 
             pd.setInstance(URI.create("/users/" + userId));
             pd.setTitle("JSON Object Error");
             return ResponseEntity.unprocessableEntity().body(pd);
         }
+
         user.setRole(newUser.getRole());
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
@@ -194,6 +214,7 @@ public class ApiController {
     @DeleteMapping(value = "/users/{id}",
                    produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    
     public ResponseEntity<?> delete(@PathVariable("id") Long userId) {
         log.debug("delete() is called");
         User user = userService.deleteUser(userId);
