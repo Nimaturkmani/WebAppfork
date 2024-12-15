@@ -32,6 +32,9 @@ import edu.fra.uas.model.UserDTO;
 import edu.fra.uas.service.UserService;
 import edu.fra.uas.util.Partition;
 
+
+
+
 @RestController //Markiert die Klasse als REST-Controller, die HTTP-Anfragen entgegennimmt
                 //und JSON- oder XML-Responses zurückgibt.
 
@@ -43,38 +46,43 @@ public class ApiController {
     @Autowired  //Der UserService wird mit @Autowired injiziert.
     private UserService userService; //Er übernimmt die eigentliche Geschäftslogik und die Interaktion mit der Datenbank
 
-    private static final int MAX_USERS = 2; //Gibt an, wie viele Benutzer pro Seite zurückgegeben werden
+    private static final int MAX_USERS = 2; //Gibt an, wie viele Benutzer pro Seite zurückgegeben werden -> Max Zwei
 
-    @GetMapping(value = "/users",  //Bindet den Endpunkt /users an diese Methode
+    @GetMapping(value = "/users", // Diese Methode wird aufgerufen, wenn der Endpunkt /users mit einer HTTP-GET-Anfrage angesprochen wird.
                 produces = MediaType.APPLICATION_JSON_VALUE) //produces: Die Antwort wird als JSON zurückgegeben
-    @ResponseBody
-   // Methode, die Benutzer über eine REST-API auflistet
+    @ResponseBody //Signalisiert, dass die Rückgabe direkt in die HTTP-Antwort geschrieben wird
+   
+    // Methode-> die Benutzer über eine REST-API auflistet
     public ResponseEntity<CollectionModel<UserDTO>> list(@RequestParam(required = false) Integer page) { 
         log.debug("list() is called");
         
+        //Ein UserDTO ist eine abgespeckte Darstellung eines Benutzerobjekts, die speziell für den Datentransfer 
+        //in der API verwendet wird.
         List<UserDTO> users = userService.getAllUsersDTO();
         if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } 
+            return ResponseEntity.noContent().build(); //ResponseEntity: rlaubt es, HTTP-Statuscodes zusammen mit der Antwort zu definieren.
+        }  //Wenn keine Benutzer existieren, wird eine HTTP-Antwort mit dem Statuscode 204 No Content zurückgegeben.
         
-        else if (users.size() > MAX_USERS && page == null) {
-            int lastPage = (users.size() / MAX_USERS) + 1;
+        else if (users.size() > MAX_USERS && page == null) { //Mehr Benutzer als MAX_USERS, aber keine Seite angegeben
+            int lastPage = (users.size() / MAX_USERS) + 1; //Berechnung der letzten Seite
+            //IanaLinkRelations.FIRST/NEXT/LAST: Standardisierte Begriffe für Navigationslinks in REST-APIs
             Link first = linkTo(methodOn(ApiController.class).list(1)).withRel(IanaLinkRelations.FIRST);
             Link next = linkTo(methodOn(ApiController.class).list(2)).withRel(IanaLinkRelations.NEXT);
             Link last = linkTo(methodOn(ApiController.class).list(lastPage)).withRel(IanaLinkRelations.LAST);
             CollectionModel<UserDTO> result = CollectionModel.of(users.subList(0, MAX_USERS)).add(first, next, last);
             for (UserDTO user : result) {
-                Link selfLink = linkTo(ApiController.class).slash("/users/" + user.getId()).withSelfRel();
+                ////Jeder Benutzer erhält einen individuellen Self-Link
+                Link selfLink = linkTo(ApiController.class).slash("/users/" + user.getId()).withSelfRel(); 
                 user.add(selfLink);
             }
-            return new ResponseEntity<>(result, HttpStatus.PARTIAL_CONTENT);
+            return new ResponseEntity<>(result, HttpStatus.PARTIAL_CONTENT); //Rückgabe mit Statuscode
         } 
-        
-        else if (page != null) {
-            Partition<UserDTO> partition = Partition.ofSize(users, MAX_USERS);
+        //Eine bestimmte Seite wird angefordert
+        else if (page != null) { //Wenn eine Seitenzahl angegeben ist
+            Partition<UserDTO> partition = Partition.ofSize(users, MAX_USERS); //Partitionieren der Benutzerliste
             CollectionModel<UserDTO> result = null;
             Link link = linkTo(methodOn(ApiController.class).list(page)).withSelfRel();
-            try{
+            try{ //Fehlerbehandlung -> ungültige Seitenzahl
                 result = CollectionModel.of(partition.get(page - 1)).add(link);
                 for (UserDTO user : result) {
                     Link selfLink = linkTo(ApiController.class).slash("/users/" + user.getId()).withSelfRel();
@@ -86,10 +94,11 @@ public class ApiController {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } 
         
-        else {
+        else { //standardfall -> Wenn keine Seitennummer angegeben ist, aber die Anzahl der Benutzer nicht größer als MAX_USERS ist
+                // wird die gesamte Benutzerliste mit Links zurückgegeben
             Link link = linkTo(methodOn(ApiController.class).list(null)).withSelfRel();
-            CollectionModel<UserDTO> result = CollectionModel.of(users).add(link);
-            for (UserDTO user : result) {
+            CollectionModel<UserDTO> result = CollectionModel.of(users).add(link); //CollectionModel: Enthält: Die Benutzerlist und Hypermedia-Links für Navigation und Self-Referenzen
+            for (UserDTO user : result) { ////UserDTO: Stellt die Benutzerdaten dar
                 Link selfLink = linkTo(ApiController.class).slash("/users/" + user.getId()).withSelfRel();
                 user.add(selfLink);
             }
@@ -97,28 +106,35 @@ public class ApiController {
         }
     }
 
-    @GetMapping(value = "/users/{id}", 
+    @GetMapping(value = "/users/{id}",  //einen einzelnen Benutzer anhand seiner ID über eine REST-API abruft
+                                        //{id} ist ein Pfadparameter, der dynamisch durch eine Benutzer-ID ersetzt wird (z. B. /users/1
                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
 
-    public ResponseEntity<?> find(@PathVariable("id") Long userId) {
+    public ResponseEntity<?> find(@PathVariable("id") Long userId) { //gibt eine HTTP-Antwort zurück, Inhalt (Benutzer) als auch den Statuscode 
+            	                    //Extrahiert den Wert des Pfadparameters {id} und weist ihn der Variablen userId zu.
         log.debug("find() is called");
         User user = userService.getUserById(userId);
         if (user == null) {            
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        return new ResponseEntity<User>(user, HttpStatus.OK); // gibt den Objekt und den Stattus als HTTP zurück
     }
 
-    @PostMapping(value = "/users", 
-                 consumes = MediaType.APPLICATION_JSON_VALUE, 
-                 produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
 
-    public ResponseEntity<?> add(@RequestBody User user) {
+
+    @PostMapping(value = "/users",  //neue Ressourcen (z. B. Benutzer) zu erstellen
+                 consumes = MediaType.APPLICATION_JSON_VALUE, //Die Methode erwartet, dass die Anfrage einen JSON-Inhalt enthält
+                 produces = MediaType.APPLICATION_JSON_VALUE) //Die Antwort wird im JSON-Format zurückgegeben.
+    @ResponseBody //Rückgabe direkt als HTTP-Antwort verwendet wird, ohne eine View zu rendern
+
+    public ResponseEntity<?> add(@RequestBody User user) { //? bedeutet, dass der Rückgabewert flexibel sein kann
+                                    //@RequestBody User user: Bindet den JSON-Inhalt der Anfrage an das User-Objekt
+                                    //Spring konvertiert das JSON automatisch in ein Java-Objekt mithilfe von Jackson.
+
         log.debug("add() is called");
         String detail = null;
-        if (user == null) {
+        if (user == null) { // Datenvalidierung -> Die Felder nicht leer sind
             detail = "User must not be null";            
         } else if (user.getRole() == null) {
             detail = "Role must not be null";
@@ -141,21 +157,25 @@ public class ApiController {
         } else if (user.getPassword().isEmpty()) {
             detail = "Password must not be empty";
         }
-
+        //Fehlerbehandlung bei ungültigen Daten
         if (detail != null) {
-            ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail); 
-            pd.setInstance(URI.create("/users"));
-            pd.setTitle("JSON Object Error");
+            ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail);  //Ein Objekt, das Details zum Fehler enthält
+            pd.setInstance(URI.create("/users")); //Setzt den Endpunkt als Instanz für das Problem
+            pd.setTitle("JSON Object Error"); 
             return ResponseEntity.unprocessableEntity().body(pd);
         }
 
         user = userService.createUser(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/restful/users/" + user.getId()));
+        HttpHeaders headers = new HttpHeaders(); //Erstellt Header für die Antwort
+        headers.setLocation(URI.create("/restful/users/" + user.getId())); //Fügt einen Location-Header hinzu, der auf die neue Ressource verweist
         return new ResponseEntity<User>(user, headers, HttpStatus.CREATED);
+        //ResponseEntity Enthält:
+    //Das erstellte User-Objekt (als JSON).
+    //Den Location-Header.
+    //Den HTTP-Status 201 Created, der signalisiert, dass eine neue Ressource erfolgreich erstellt wurde.
     }
 
-    @PutMapping(value = "/users/{id}"
+    @PutMapping(value = "/users/{id}" //einen bestehenden Benutzer über eine REST-API zu aktualisieren
                 , consumes = MediaType.APPLICATION_JSON_VALUE
                 , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -193,13 +213,13 @@ public class ApiController {
             detail = "Password must not be empty";
         }
 
-        if (detail != null) {
+        if (detail != null) { //Fehlerbehandlung bei ungültigen Daten
             ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail); 
             pd.setInstance(URI.create("/users/" + userId));
             pd.setTitle("JSON Object Error");
             return ResponseEntity.unprocessableEntity().body(pd);
         }
-
+        //Aktualisieren der Benutzerdaten
         user.setRole(newUser.getRole());
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
@@ -211,10 +231,10 @@ public class ApiController {
         return new ResponseEntity<User>(user, headers,  HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/users/{id}",
+    @DeleteMapping(value = "/users/{id}", //löschen 
                    produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    
+
     public ResponseEntity<?> delete(@PathVariable("id") Long userId) {
         log.debug("delete() is called");
         User user = userService.deleteUser(userId);

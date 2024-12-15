@@ -25,7 +25,7 @@ import edu.fra.uas.model.User;
 import edu.fra.uas.service.UserService;
 
 @RestController
-@RequestMapping("/restful")
+@RequestMapping("/restful") //Alle Endpunkte dieser Klasse beginnen mit dem Präfix /restful
 public class RestfulController {
     
     private final Logger log = org.slf4j.LoggerFactory.getLogger(RestfulController.class);
@@ -33,12 +33,13 @@ public class RestfulController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/users", 
+    @GetMapping(value = "/users",  //Liste aller Benutzer
                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<User>> list() {
         log.debug("list() is called");
-        Iterable<User> userIter = userService.getAllUsers();
+        Iterable<User> userIter = userService.getAllUsers(); //Ruft alle Benutzer als Iterable<User> aus der Datenbank ab
+
         List<User> users = new ArrayList<>();
         for (User user : userIter) {
             users.add(user);
@@ -49,7 +50,7 @@ public class RestfulController {
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/users/{id}", 
+    @GetMapping(value = "/users/{id}", //Benutzer nach ID suchen
                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> find(@PathVariable("id") Long userId) {
@@ -68,7 +69,7 @@ public class RestfulController {
     public ResponseEntity<?> add(@RequestBody User user) {
         log.debug("add() is called");
         String detail = null;
-        if (user == null) {
+        if (user == null) { //validierung
             detail = "User must not be null";            
         } else if (user.getRole() == null) {
             detail = "Role must not be null";
@@ -103,7 +104,7 @@ public class RestfulController {
         return new ResponseEntity<User>(user, headers, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/users/{id}"
+    @PutMapping(value = "/users/{id}" //Benutzer aktualisieren
                 , consumes = MediaType.APPLICATION_JSON_VALUE
                 , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
