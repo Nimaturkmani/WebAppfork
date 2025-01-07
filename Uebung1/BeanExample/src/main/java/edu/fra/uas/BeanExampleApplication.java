@@ -11,7 +11,7 @@ public class BeanExampleApplication {
 		SpringApplication.run(BeanExampleApplication.class, args); // initializing and lunching the app
 	}
 
-	@Bean
+	@Bean // wenn bean einkommentiert wird wird die hello world nicht in Konsole ausgegeben
 	CommandLineRunner init() { // dass Container nach dem Start der Anwendung die Bean unmittelbar ausführt
 		CommandLineRunner action = new CommandLineRunner() {
 			@Override

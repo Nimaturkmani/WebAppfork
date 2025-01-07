@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class HelloWorldController {
 
-    @RequestMapping(value = "hello", method=RequestMethod.GET)
+    @RequestMapping(value = "helloMax", method=RequestMethod.GET) // Value gibt an was nach / kommt -> localhost:8080/helloMax
     @ResponseBody
     public String getHelloWorld(){
         return "<h1> hello world i am here </h1>";

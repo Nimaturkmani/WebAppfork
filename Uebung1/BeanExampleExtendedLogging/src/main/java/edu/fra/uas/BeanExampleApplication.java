@@ -27,9 +27,13 @@ public class BeanExampleApplication {
 		CommandLineRunner action = new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
+				// das hier hat nur ein Ausgabe weil die Wert wird 2 Mal überschrieben und nur beim letzen mal ausgegeben!
 				log.debug(beanController.putMessage("Hello World"));
 				log.debug(beanController.putMessage("--> OOOHOOO <--"));
 				System.out.println(beanController.putMessage("hiiiii"));
+				//my test method nothing to do with aufgabe!
+				String txt = "Hello world and hello txt";
+				beanController.readMessage(txt);
 			}
 		};
 		return action;
